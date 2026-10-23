@@ -1,88 +1,88 @@
-# Evaluation Protocol
+# Quy trình Đánh giá
 
-## Metrics
+## Các chỉ số
 
-### Primary metrics
+### Chỉ số chính
 
-| Metric | Symbol | Description | Better |
+| Chỉ số | Ký hiệu | Mô tả | Tốt hơn |
 |--------|--------|-------------|--------|
-| **Hypervolume** | HV | Volume dominated by the front, bounded by reference point | Higher |
-| **Inverted Generational Distance+** | IGD+ | Average distance from reference front to obtained front (Ishibuchi et al. 2015) | Lower |
-| **Epsilon indicator** | I_eps | Minimum factor to shift obtained front to dominate reference | Lower |
+| **Hypervolume** | HV | Thể tích bị trội bởi mặt trận, giới hạn bởi điểm tham chiếu | Cao hơn |
+| **Inverted Generational Distance+** | IGD+ | Khoảng cách trung bình từ mặt trận tham chiếu đến mặt trận thu được (Ishibuchi et al. 2015) | Thấp hơn |
+| **Epsilon indicator** | I_eps | Hệ số dịch chuyển tối thiểu để mặt trận thu được trội mặt trận tham chiếu | Thấp hơn |
 
-### Secondary metrics
+### Chỉ số phụ
 
-| Metric | Description | Better |
+| Chỉ số | Mô tả | Tốt hơn |
 |--------|-------------|--------|
-| **#ND** | Number of non-dominated solutions in the front | Context-dependent |
-| **Spacing** | Uniformity of the front distribution | Lower |
-| **Runtime** | Wall-clock time in seconds | Lower |
-| **#Evaluations** | Total solution evaluations | Lower |
-| **Feasibility rate** | Fraction of 30 runs producing at least 1 feasible solution | Higher |
+| **#ND** | Số lời giải không bị trội trong mặt trận | Tùy ngữ cảnh |
+| **Spacing** | Độ đồng đều của phân bố mặt trận | Thấp hơn |
+| **Runtime** | Thời gian chạy thực tế (giây) | Thấp hơn |
+| **#Evaluations** | Tổng số lượt đánh giá lời giải | Thấp hơn |
+| **Tỉ lệ khả thi** | Tỉ lệ trong 30 lần chạy tạo ra ít nhất 1 lời giải khả thi | Cao hơn |
 
-### Reference point for HV
+### Điểm tham chiếu cho HV
 
-The reference point is computed per instance:
+Điểm tham chiếu được tính cho mỗi instance:
 
 ```
 r = (1.1 * T_max_worst, 1.1 * E_max_worst)
 ```
 
-where T_max_worst and E_max_worst are the worst (largest) objective values across ALL algorithms and ALL runs on that instance. This ensures all algorithms use the same reference point.
+trong đó T_max_worst và E_max_worst là giá trị mục tiêu tệ nhất (lớn nhất) trên TẤT CẢ thuật toán và TẤT CẢ lần chạy trên instance đó. Điều này đảm bảo tất cả thuật toán sử dụng cùng điểm tham chiếu.
 
-### Reference front for IGD+
+### Mặt trận tham chiếu cho IGD+
 
-The reference Pareto front is the union of all non-dominated solutions across ALL algorithms and ALL 30 runs on that instance. This is the best-known front for that instance.
+Mặt trận Pareto tham chiếu là hợp của tất cả lời giải không bị trội trên TẤT CẢ thuật toán và TẤT CẢ 30 lần chạy trên instance đó. Đây là mặt trận tốt nhất đã biết cho instance đó.
 
-## Normalization
+## Chuẩn hóa
 
-Before computing metrics, objectives are normalized to [0, 1] using the range of the reference front:
+Trước khi tính các chỉ số, các giá trị mục tiêu được chuẩn hóa về [0, 1] sử dụng khoảng giá trị của mặt trận tham chiếu:
 
 ```
 f_1_norm = (f_1 - f_1_min) / (f_1_max - f_1_min)
 f_2_norm = (f_2 - f_2_min) / (f_2_max - f_2_min)
 ```
 
-where f_min, f_max come from the reference front (union of all algorithms).
+trong đó f_min, f_max lấy từ mặt trận tham chiếu (hợp của tất cả thuật toán).
 
-## Statistical testing
+## Kiểm định thống kê
 
-1. Run each algorithm 30 times per instance (different random seeds)
-2. Compute HV (or IGD+) for each run
-3. Compare algorithms pairwise using **Wilcoxon rank-sum test** (alpha = 0.05)
-4. Report win/tie/loss counts across all instances
-5. Use **Friedman test** for overall ranking across all instances
+1. Chạy mỗi thuật toán 30 lần trên mỗi instance (seed ngẫu nhiên khác nhau)
+2. Tính HV (hoặc IGD+) cho mỗi lần chạy
+3. So sánh các thuật toán theo cặp bằng **kiểm định Wilcoxon rank-sum** (alpha = 0.05)
+4. Báo cáo số lần thắng/hòa/thua trên tất cả instance
+5. Sử dụng **kiểm định Friedman** để xếp hạng tổng thể trên tất cả instance
 
-## Reporting format
+## Định dạng báo cáo
 
-### Per-instance table
+### Bảng theo từng instance
 
-| Instance | Metric | Algo1 (mean +/- std) | Algo2 | ... | Best |
+| Instance | Chỉ số | Algo1 (mean +/- std) | Algo2 | ... | Tốt nhất |
 |----------|--------|----------------------|-------|-----|------|
 | C101_A   | HV     | 0.85 +/- 0.02        | 0.82  | ... | Algo1 |
 | C101_A   | IGD+   | 0.05 +/- 0.01        | 0.08  | ... | Algo1 |
 
-### Aggregated table (by category)
+### Bảng tổng hợp (theo loại instance)
 
-| Category | Metric | Algo1 | Algo2 | ... |
+| Loại | Chỉ số | Algo1 | Algo2 | ... |
 |----------|--------|-------|-------|-----|
-| C1       | HV avg | 0.83  | 0.79  | ... |
-| R1       | HV avg | 0.78  | 0.75  | ... |
+| C1       | HV trung bình | 0.83  | 0.79  | ... |
+| R1       | HV trung bình | 0.78  | 0.75  | ... |
 
-### Win/tie/loss table
+### Bảng thắng/hòa/thua
 
-| Algo1 vs | Win | Tie | Loss | (based on Wilcoxon, HV) |
+| Algo1 so với | Thắng | Hòa | Thua | (dựa trên Wilcoxon, HV) |
 |----------|-----|-----|------|-------------------------|
 | NSGA-II  | 95  | 10  | 7    |                         |
 | NSGA-III | 88  | 15  | 9    |                         |
 
-## Convergence analysis
+## Phân tích hội tụ
 
-Plot the HV vs. number of evaluations (at intervals of 10,000 evaluations) for a representative instance (e.g., R101_A) to show convergence speed.
+Vẽ đồ thị HV theo số lượt đánh giá (tại các mốc 10.000 lượt đánh giá) cho một instance đại diện (ví dụ: R101_A) để thể hiện tốc độ hội tụ.
 
-## Sensitivity analysis
+## Phân tích độ nhạy
 
-Test with:
-- eps_L in {10, 25, 50, 100, infinity}: effect of tardiness strictness
-- M in {3, 5, 7}: effect of fleet size
-- On 3 representative instances: one from C1 (clustered/tight), one from R2 (random/wide), one from RC1 (mixed/tight)
+Kiểm tra với:
+- eps_L trong {10, 25, 50, 100, infinity}: ảnh hưởng của mức độ nghiêm ngặt tardiness
+- M trong {3, 5, 7}: ảnh hưởng của kích thước đội xe
+- Trên 3 instance đại diện: một từ C1 (cụm/hẹp), một từ R2 (ngẫu nhiên/rộng), một từ RC1 (hỗn hợp/hẹp)

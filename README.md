@@ -1,75 +1,75 @@
-# Multi-objective Truck-Drone Routing Benchmark
+# Bộ Benchmark cho Bài toán Định tuyến Xe tải-Drone Đa mục tiêu
 
-**Multi-objective Truck-Drone Routing with Flexible Rendezvous, Partial Charging, and Soft Time Windows**
+**Định tuyến xe tải-drone đa mục tiêu với điểm hẹn linh hoạt, sạc từng phần và cửa sổ thời gian mềm**
 
-## Problem overview
+## Tổng quan bài toán
 
-- **M** truck-drone pairs; each truck carries exactly one drone
-- Each drone sortie serves exactly 1 customer; launch at truck stop h, recover at stop h+1
-- Recovery points: depot, customer, or predefined flexible site
-- Partial charging: on moving truck (rate rho_m) or while stopped (rate rho_s, costs extra stop time)
-- Soft time windows: total weighted tardiness is a constraint (L_total <= eps_L), not an objective
-- **Objectives**: minimize makespan T_max AND minimize total system energy E_system
-- **Output**: Pareto front approximation
+- **M** cặp xe tải-drone; mỗi xe tải mang chính xác một drone
+- Mỗi chuyến bay drone phục vụ đúng 1 khách hàng; phóng tại điểm dừng h, thu hồi tại điểm dừng h+1
+- Điểm thu hồi: kho hàng (depot), khách hàng, hoặc điểm linh hoạt (flexible site)
+- Sạc từng phần: trên xe tải đang di chuyển (tốc độ rho_m) hoặc khi xe dừng (tốc độ rho_s, tốn thêm thời gian dừng)
+- Cửa sổ thời gian mềm: tổng trễ có trọng số là ràng buộc (L_total <= eps_L), không phải mục tiêu
+- **Mục tiêu**: tối thiểu hóa makespan T_max VÀ tối thiểu hóa tổng năng lượng hệ thống E_system
+- **Đầu ra**: xấp xỉ mặt trận Pareto
 
-## Repository structure
+## Cấu trúc thư mục
 
 ```
 mo-truck-drone-benchmark/
-  README.md                    # This file
+  README.md                    # File này
   docs/
-    problem_specification.md   # Full mathematical model (English)
-    input_format.md            # JSON input schema with field descriptions
-    output_format.md           # Required output format for Pareto front
-    algorithms.md              # Comparison algorithms with references
-    evaluation.md              # Metrics and evaluation protocol
-  instances/                   # 112 benchmark instances (56 base x 2 variants)
+    problem_specification.md   # Mô hình toán học đầy đủ
+    input_format.md            # Định dạng đầu vào JSON
+    output_format.md           # Định dạng đầu ra cho mặt trận Pareto
+    algorithms.md              # Các thuật toán so sánh kèm tài liệu tham khảo
+    evaluation.md              # Chỉ số đánh giá và quy trình thực nghiệm
+  instances/                   # 112 bộ test (56 cơ sở x 2 biến thể)
     C101_A.json ... RC208_B.json
   scripts/
-    evaluate.py                # Compute HV, IGD+, epsilon indicator
-    validate_solution.py       # Check feasibility of a solution file
-    generate_instances.py      # Instance generator (for reproducibility)
+    evaluate.py                # Tính HV, IGD+, epsilon indicator
+    validate_solution.py       # Kiểm tra tính khả thi của lời giải
+    generate_instances.py      # Sinh bộ test (để tái tạo)
 ```
 
-## Instances
+## Bộ test
 
-56 Solomon-style 100-customer instances across 6 categories, each with 2 variants:
+56 instance kiểu Solomon với 100 khách hàng, chia thành 6 loại, mỗi loại có 2 biến thể:
 
-| Category | Count | Spatial | Time windows |
-|----------|-------|---------|-------------|
-| C1 (C101-C109) | 9 | Clustered | Tight |
-| C2 (C201-C208) | 8 | Clustered | Wide |
-| R1 (R101-R112) | 12 | Random | Tight |
-| R2 (R201-R211) | 11 | Random | Wide |
-| RC1 (RC101-RC108) | 8 | Mixed | Tight |
-| RC2 (RC201-RC208) | 8 | Mixed | Wide |
+| Loại | Số lượng | Phân bố không gian | Cửa sổ thời gian |
+|------|----------|--------------------|--------------------|
+| C1 (C101-C109) | 9 | Cụm (Clustered) | Hẹp (Tight) |
+| C2 (C201-C208) | 8 | Cụm (Clustered) | Rộng (Wide) |
+| R1 (R101-R112) | 12 | Ngẫu nhiên (Random) | Hẹp (Tight) |
+| R2 (R201-R211) | 11 | Ngẫu nhiên (Random) | Rộng (Wide) |
+| RC1 (RC101-RC108) | 8 | Hỗn hợp (Mixed) | Hẹp (Tight) |
+| RC2 (RC201-RC208) | 8 | Hỗn hợp (Mixed) | Rộng (Wide) |
 
-**Variant A** (natural UAV advantage): all edges exist; truck uses detour factor 1.3x Euclidean, drone flies Euclidean at higher speed (40 vs 30).
+**Biến thể A** (lợi thế tự nhiên của UAV): tất cả cạnh tồn tại; xe tải sử dụng hệ số đường vòng 1.3 lần khoảng cách Euclidean, drone bay theo đường Euclidean với tốc độ cao hơn (40 so với 30).
 
-**Variant B** (forced UAV): ~15% of customers are truck-inaccessible (drone-only). These are the closest drone-feasible customers to the depot.
+**Biến thể B** (bắt buộc dùng UAV): ~15% khách hàng không thể tiếp cận bằng xe tải (chỉ drone phục vụ được). Đây là các khách hàng drone-eligible gần depot nhất.
 
-## Quick start
+## Hướng dẫn nhanh
 
-1. Pick an instance, e.g., `instances/R101_A.json`
-2. Run your algorithm; produce output in the format specified in `docs/output_format.md`
-3. Validate: `python scripts/validate_solution.py R101_A.json your_solution.json`
-4. Evaluate: `python scripts/evaluate.py --ref reference_front.json your_solution.json`
+1. Chọn một instance, ví dụ: `instances/R101_A.json`
+2. Chạy thuật toán của bạn; xuất kết quả theo định dạng trong `docs/output_format.md`
+3. Kiểm tra tính khả thi: `python scripts/validate_solution.py R101_A.json your_solution.json`
+4. Đánh giá: `python scripts/evaluate.py --ref reference_front.json your_solution.json`
 
-## Comparison algorithms
+## Thuật toán so sánh
 
-See `docs/algorithms.md` for the full list with references.
+Xem `docs/algorithms.md` để biết danh sách đầy đủ kèm tài liệu tham khảo.
 
-## Evaluation metrics
+## Chỉ số đánh giá
 
-See `docs/evaluation.md` for the protocol: HV, IGD+, epsilon indicator, #ND, runtime.
+Xem `docs/evaluation.md` để biết quy trình: HV, IGD+, epsilon indicator, #ND, runtime.
 
-## Citation
+## Trích dẫn
 
-If you use this benchmark, please cite:
+Nếu bạn sử dụng bộ benchmark này, vui lòng trích dẫn:
 ```
-[Paper reference TBD]
+[Tham khảo bài báo - sẽ cập nhật]
 ```
 
-## License
+## Giấy phép
 
-The benchmark instances and evaluation scripts are released for academic research purposes.
+Bộ benchmark và các script đánh giá được phát hành cho mục đích nghiên cứu học thuật.

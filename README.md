@@ -59,6 +59,18 @@ mo-truck-drone-benchmark/
 
 Xem `docs/algorithms.md` để biết danh sách đầy đủ kèm tài liệu tham khảo.
 
+Đã triển khai **NSGA-II, NSGA-III và MOEA/D** trong `truck_drone/`, không cần
+thư viện ngoài. Xem [hướng dẫn triển khai và chạy](docs/baseline_implementation.md).
+
+```bash
+python3 -m truck_drone instances/R101_A.json --algorithm all
+python3 -m unittest discover -s tests -v
+```
+
+**Lưu ý dữ liệu:** với M=5 và sức chứa 200, cả 112 instance đều vượt tổng tải
+đội xe. Bộ giải báo `infeasible_precheck`, giữ nguyên dữ liệu và cấu hình theo
+đặc tả trong khi chờ nhóm quyết định; không xuất mặt trận khả thi giả.
+
 ## Chỉ số đánh giá
 
 Xem `docs/evaluation.md` để biết quy trình: HV, IGD+, epsilon indicator, #ND, runtime.
